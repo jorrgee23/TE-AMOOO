@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>te amo mor 
+</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;800&display=swap" rel="stylesheet">
+<style>
+  /* ============ Tokens ============ */
+  :root {
+    color-scheme: light;
+    --bg: #D9D6FF;
+    --ink: #17124F;
+    --muted: #4A43A6;
+    --glow: rgba(255, 255, 255, .55);
+    --line: rgba(23, 18, 79, .18);
+    --modal: rgba(255, 255, 255, .72);
+    --scrim: rgba(23, 18, 79, .38);
+    --focus: #17124F;
+    --stem: #2C8A57;
+    --leaf: #3AAE6C;
+
+    --sun: #FFD60A;
+    --sun-ink: #17124F;
+
+    /* colores por defecto de las flores (cada flor los sobrescribe) */
+    --petal: #FFD60A;
+    --petal-2: #F2AE00;
+    --core: #E8890C;
+    --disc: #4A2B0B;
+    --disc-2: #8B5A1E;
+
+    --font: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #14103F;
+      --ink: #F3F0FF;
+      --muted: #B4AEF2;
+      --glow: rgba(120, 96, 255, .28);
+      --line: rgba(243, 240, 255, .2);
+      --modal: rgba(28, 22, 84, .72);
+      --scrim: rgba(8, 6, 32, .55);
+      --focus: #FFD60A;
+      --stem: #4CC790;
+      --leaf: #5BD69C;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #14103F;
+    --ink: #F3F0FF;
+    --muted: #B4AEF2;
+    --glow: rgba(120, 96, 255, .28);
+    --line: rgba(243, 240, 255, .2);
+    --modal: rgba(28, 22, 84, .72);
+    --scrim: rgba(8, 6, 32, .55);
+    --focus: #FFD60A;
+    --stem: #4CC790;
+    --leaf: #5BD69C;
+  }
+
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font);
+    font-weight: 500;
+    -webkit-font-smoothing: antialiased;
+  }
+  body:has(dialog[open]) { overflow: hidden; }
+  ::selection { background: var(--sun); color: var(--sun-ink); }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+
+  .defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+  /* ============ Secciones ============ */
+  .sec {
+    position: relative;
+    min-height: 100vh;
+    min-height: 100svh;
+    display: grid;
+    place-items: center;
+    padding: 14vh 6vw;
+    overflow-x: clip;
+  }
+  .sec::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(55% 45% at var(--gx, 50%) var(--gy, 50%), var(--glow), transparent 70%);
+    pointer-events: none;
+  }
+  .inner {
+    position: relative;
+    z-index: 2000;
+    width: 100%;
+    max-width: min(1100px, 100%);
+    text-align: center;
+  }
+
+  /* ============ Frases ============ */
+  .phrase {
+    margin: 0 auto;
+    font-weight: 800;
+    font-size: clamp(2.5rem, 8.2vw, 7rem);
+    line-height: .98;
+    letter-spacing: -.04em;
+    text-wrap: balance;
+  }
+  .phrase.big {
+    font-size: clamp(3rem, 11.5vw, 9.5rem);
+    line-height: .94;
+  }
+  /* cada palabra sube desde una máscara */
+  .w {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+    padding: .08em .05em .18em;
+    margin: -.08em -.05em -.18em;
+  }
+  .w > span {
+    display: inline-block;
+    transform: translateY(112%);
+    transition: transform .95s cubic-bezier(.2, .8, .2, 1) calc(var(--i) * 70ms + 120ms);
+  }
+  .sec.in .w > span { transform: none; }
+
+  .cue {
+    position: absolute;
+    z-index: 2000;
+    bottom: 26px;
+    left: 50%;
+    translate: -50% 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    color: var(--muted);
+    font-size: .95rem;
+    font-weight: 500;
+  }
+  .cue .arrow {
+    width: 2px;
+    height: 44px;
+    border-radius: 2px;
+    background: linear-gradient(currentColor, transparent);
+    transform-origin: top;
+    animation: drip 2s ease-in-out infinite;
+  }
+  @keyframes drip {
+    0%   { transform: scaleY(.2); opacity: 0; }
+    40%  { transform: scaleY(1);  opacity: 1; }
+    100% { transform: scaleY(1);  opacity: 0; }
+  }
+
+  /* ============ Flores sueltas ============ */
+  .flowers { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+  .f {
+    position: absolute;
+    left: calc(var(--x) * 1%);
+    top: calc(var(--y) * 1%);
+    translate: -50% -50%;
+    rotate: calc(var(--r) * 1deg);
+  }
+  .bloom {
+    width: calc(var(--s) * 1px);
+    height: calc(var(--s) * 1px);
+    opacity: 0;
+    transform: scale(0) rotate(-140deg);
+    transition:
+      transform 1.3s cubic-bezier(.22, 1.5, .36, 1) var(--d, 0s),
+      opacity .6s ease var(--d, 0s);
+  }
+  .f.in .bloom { opacity: 1; transform: none; }
+  .f svg { display: block; width: 100%; height: 100%; overflow: visible; }
+  .f.in svg { animation: spin var(--dur, 70s) linear infinite var(--dir, normal); }
+  .sec:not(.vis) .f svg { animation-play-state: paused; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* parallax con CSS puro (donde el navegador lo soporta) */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .f { animation: drift linear both; animation-timeline: view(); }
+    }
+  }
+  @keyframes drift {
+    from { transform: translate3d(0, calc(var(--p) * 80px), 0); }
+    to   { transform: translate3d(0, calc(var(--p) * -80px), 0); }
+  }
+
+  /* ============ Final: el ramo ============ */
+  .finale { padding: 16vh 6vw 12vh; }
+  .finale .inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(1.5rem, 5vh, 3rem);
+  }
+  .bouquet { width: min(470px, 80vw); }
+  .bouquet svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    transform-origin: 50% 96%;
+  }
+  .bouquet .paper {
+    opacity: 0;
+    transform: translateY(46px);
+    transition: transform .9s cubic-bezier(.2, .9, .3, 1), opacity .5s ease;
+  }
+  .bouquet .paper.front { transition-delay: .15s; }
+  .bouquet .lf { opacity: 0; transition: opacity .8s ease .6s; }
+  .bouquet .stem {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 1.2s cubic-bezier(.3, .7, .2, 1) calc(.35s + var(--i) * .07s);
+  }
+  .bouquet .bq {
+    opacity: 0;
+    transform: scale(0) rotate(-120deg);
+    transition:
+      transform 1.2s cubic-bezier(.22, 1.5, .36, 1) calc(1s + var(--i) * .13s),
+      opacity .5s ease calc(1s + var(--i) * .13s);
+  }
+  .bouquet .bow {
+    transform: scale(0);
+    transition: transform .9s cubic-bezier(.22, 1.6, .36, 1) 2.6s;
+  }
+  .bouquet.in .paper,
+  .bouquet.in .bq,
+  .bouquet.in .bow { opacity: 1; transform: none; }
+  .bouquet.in .lf { opacity: 1; }
+  .bouquet.in .stem { stroke-dashoffset: 0; }
+  .bouquet.in .hd { animation: spin var(--dur, 70s) linear infinite var(--dir, normal); }
+  .bouquet.in svg { animation: sway 6s ease-in-out 3.6s infinite alternate; }
+  @keyframes sway { from { rotate: -1.6deg; } to { rotate: 1.6deg; } }
+
+  /* botones justo debajo del ramo */
+  .actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    margin-top: -.75rem;
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity .6s ease 2.8s, transform .6s ease 2.8s;
+  }
+  .bouquet.in + .actions { opacity: 1; transform: none; }
+
+  .btn {
+    font: inherit;
+    font-weight: 800;
+    border: 0;
+    border-radius: 999px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 26px;
+    font-size: 1.05rem;
+    color: var(--sun-ink);
+    background: var(--sun);
+    box-shadow: 0 12px 30px -12px rgba(255, 190, 0, .9);
+    transition: transform .2s cubic-bezier(.2, .9, .3, 1.3);
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn:active { transform: scale(.97); }
+  .btn.ghost {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    box-shadow: none;
+    padding: 10px 18px;
+    font-size: .95rem;
+    font-weight: 500;
+  }
+
+  /* ============ Ventana del mensaje ============ */
+  dialog.msg {
+    width: min(720px, calc(100vw - 32px));
+    max-width: none;
+    max-height: none;
+    margin: auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    overflow: visible;
+  }
+  dialog.msg::backdrop {
+    background: var(--scrim);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+  dialog.msg[open] { animation: pop .45s cubic-bezier(.2, .9, .3, 1.1); }
+  dialog.msg[open]::backdrop { animation: fade .3s ease; }
+  @keyframes pop  { from { opacity: 0; transform: translateY(28px) scale(.96); } }
+  @keyframes fade { from { opacity: 0; } }
+
+  .msg-card {
+    position: relative;
+    padding: clamp(28px, 5vw, 56px);
+    border-radius: 28px;
+    background: var(--modal);
+    -webkit-backdrop-filter: blur(26px) saturate(1.3);
+    backdrop-filter: blur(26px) saturate(1.3);
+    border: 1px solid var(--line);
+    box-shadow: 0 30px 80px -30px rgba(23, 18, 79, .6);
+    max-height: calc(100vh - 48px);
+    max-height: calc(100svh - 48px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+  .msg-card h3 {
+    margin: 0 0 .55em;
+    padding-right: 2.8rem;
+    font-size: clamp(1.9rem, 4.6vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: -.035em;
+    text-wrap: balance;
+  }
+  .msg-card p {
+    margin: 0 0 1.05em;
+    font-size: clamp(1.1rem, 2.1vw, 1.45rem);
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
+  .msg-card p:last-child { margin-bottom: 0; }
+  .msg-card .sig { font-weight: 800; }
+  .msg-card .x {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--ink);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+  .msg-card .x:hover { background: var(--line); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .f svg, .cue .arrow, .bouquet svg, .bouquet .hd,
+    dialog.msg[open], dialog.msg[open]::backdrop { animation: none !important; }
+    .bloom, .w > span, .bouquet *, .actions { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Definición de las flores (SVG reutilizable) ===== -->
+<svg class="defs" width="0" height="0" aria-hidden="true" focusable="false">
+  <defs>
+    <!-- Hoja del ramo -->
+    <path id="leaf" d="M0 0C18-26 62-30 90 0C62 30 18 26 0 0Z"/>
+
+    <!-- Margarita: 2 anillos de 10 pétalos -->
+    <g id="ring-daisy" style="fill:var(--c)">
+      <ellipse cx="50" cy="21" rx="6.5" ry="19"/>
+      <ellipse cx="50" cy="21" rx="6.5" ry="19" transform="rotate(36 50 50)"/>
+      <ellipse cx="50" cy="21" rx="6.5" ry="19" transform="rotate(72 50 50)"/>
+      <ellipse cx="50" cy="21" rx="6.5" ry="19" transform="rotate(108 50 50)"/>
+      <ellipse cx="50" cy="21" rx="6.5" ry="19" transform="rotate(144 50 50)"/>
+      <ellipse cx="50" cy="21" rx="6.5" ry="19" transform="rotate(180 50 50)"/>
+      <ellipse cx="50" cy="21" rx="6.5" ry="19" transform="rotate(216 50 50)"/>
+      <ellipse cx="50" cy="21" rx="6.5" ry="19" transform="rotate(252 50 50)"/>
+      <ellipse cx="50" cy="21" rx="6.5" ry="19" transform="rotate(288 50 50)"/>
+      <ellipse cx="50" cy="21" rx="6.5" ry="19" transform="rotate(324 50 50)"/>
+    </g>
+    <g id="daisy">
+      <use href="#ring-daisy" transform="rotate(18 50 50)" style="--c:var(--petal-2)"/>
+      <use href="#ring-daisy" style="--c:var(--petal)"/>
+      <circle cx="50" cy="50" r="11.5" style="fill:var(--core)"/>
+      <circle cx="50" cy="50" r="6.5" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="2" stroke-dasharray="1.5 3"/>
+    </g>
+
+    <!-- Ranúnculo: 5 pétalos redondos en 2 capas -->
+    <g id="ring-cup" style="fill:var(--c)">
+      <circle cx="50" cy="27" r="18"/>
+      <circle cx="50" cy="27" r="18" transform="rotate(72 50 50)"/>
+      <circle cx="50" cy="27" r="18" transform="rotate(144 50 50)"/>
+      <circle cx="50" cy="27" r="18" transform="rotate(216 50 50)"/>
+      <circle cx="50" cy="27" r="18" transform="rotate(288 50 50)"/>
+    </g>
+    <g id="cup">
+      <use href="#ring-cup" transform="rotate(36 50 50)" style="--c:var(--petal-2)"/>
+      <use href="#ring-cup" style="--c:var(--petal)"/>
+      <circle cx="50" cy="50" r="10" style="fill:var(--core)"/>
+      <circle cx="50" cy="50" r="5" fill="#fff" fill-opacity=".35"/>
+    </g>
+
+    <!-- Girasol: 12 pétalos en punta + disco de semillas -->
+    <g id="ring-sun" style="fill:var(--c)">
+      <path d="M50 3C59.5 17 59.5 31 50 45C40.5 31 40.5 17 50 3Z"/>
+      <path d="M50 3C59.5 17 59.5 31 50 45C40.5 31 40.5 17 50 3Z" transform="rotate(30 50 50)"/>
+      <path d="M50 3C59.5 17 59.5 31 50 45C40.5 31 40.5 17 50 3Z" transform="rotate(60 50 50)"/>
+      <path d="M50 3C59.5 17 59.5 31 50 45C40.5 31 40.5 17 50 3Z" transform="rotate(90 50 50)"/>
+      <path d="M50 3C59.5 17 59.5 31 50 45C40.5 31 40.5 17 50 3Z" transform="rotate(120 50 50)"/>
+      <path d="M50 3C59.5 17 59.5 31 50 45C40.5 31 40.5 17 50 3Z" transform="rotate(150 50 50)"/>
+      <path d="M50 3C59.5 17 59.5 31 50 45C40.5 31 40.5 17 50 3Z" transform="rotate(180 50 50)"/>
+      <path d="M50 3C59.5 17 59.5 31 50 45C40.5 31 40.5 17 50 3Z" transform="rotate(210 50 50)"/>
+      <path d="M50 3C59.5 17 59.5 31 50 45C40.5 31 40.5 17 50 3Z" transform="rotate(240 50 50)"/>
+      <path d="M50 3C59.5 17 59.5 31 50 45C40.5 31 40.5 17 50 3Z" transform="rotate(270 50 50)"/>
+      <path d="M50 3C59.5 17 59.5 31 50 45C40.5 31 40.5 17 50 3Z" transform="rotate(300 50 50)"/>
+      <path d="M50 3C59.5 17 59.5 31 50 45C40.5 31 40.5 17 50 3Z" transform="rotate(330 50 50)"/>
+    </g>
+    <g id="sun">
+      <use href="#ring-sun" transform="rotate(15 50 50)" style="--c:var(--petal-2)"/>
+      <use href="#ring-sun" style="--c:var(--petal)"/>
+      <circle cx="50" cy="50" r="19" style="fill:var(--disc)"/>
+      <circle cx="50" cy="50" r="14" fill="none" stroke-width="3" stroke-dasharray="1.6 3.2" style="stroke:var(--disc-2)"/>
+      <circle cx="50" cy="50" r="8" fill="none" stroke-width="3" stroke-dasharray="1.6 3.2" style="stroke:var(--disc-2)"/>
+      <circle cx="50" cy="50" r="2.5" style="fill:var(--disc-2)"/>
+    </g>
+
+    <!-- Mimosa: pompón esponjoso -->
+    <g id="mimosa">
+      <g style="fill:var(--petal-2)">
+        <circle cx="50" cy="24" r="12"/><circle cx="76" cy="50" r="12"/>
+        <circle cx="50" cy="76" r="12"/><circle cx="24" cy="50" r="12"/>
+        <circle cx="68" cy="32" r="11"/><circle cx="68" cy="68" r="11"/>
+        <circle cx="32" cy="68" r="11"/><circle cx="32" cy="32" r="11"/>
+      </g>
+      <g style="fill:var(--petal)">
+        <circle cx="50" cy="50" r="21"/>
+        <circle cx="50" cy="33" r="9"/><circle cx="67" cy="50" r="9"/>
+        <circle cx="50" cy="67" r="9"/><circle cx="33" cy="50" r="9"/>
+      </g>
+      <circle cx="43" cy="43" r="4" fill="#fff" fill-opacity=".38"/>
+      <circle cx="58" cy="56" r="3" fill="#fff" fill-opacity=".3"/>
+    </g>
+  </defs>
+</svg>
+
+<!-- Pantallas con frases (se generan con JS a partir de PHRASES) -->
+<main id="stage"></main>
+
+<!-- ===== FINAL: ramo de flores amarillas con frase grande ===== -->
+<section class="sec finale" id="finale" style="--gx:50%;--gy:65%">
+  <div class="flowers" aria-hidden="true"></div>
+  <div class="inner">
+    <h2 class="phrase big" id="finalPhrase"></h2>
+
+    <div class="bouquet" id="bouquet">
+      <svg viewBox="0 0 600 720" role="img" aria-label="Ramo de flores amarillas">
+
+        <!-- papel de fondo (interior) -->
+        <g class="paper">
+          <path d="M110 385Q300 355 490 385L322 705L278 705Z" fill="#EBD37A"/>
+        </g>
+
+        <!-- hojas -->
+        <g class="lf" style="fill:var(--leaf)">
+          <use href="#leaf" transform="translate(250 440) rotate(-160) scale(1.5)"/>
+          <use href="#leaf" transform="translate(350 440) rotate(-20) scale(1.5)"/>
+          <use href="#leaf" transform="translate(272 445) rotate(-128) scale(1.25)"/>
+          <use href="#leaf" transform="translate(328 445) rotate(-52) scale(1.25)"/>
+        </g>
+
+        <!-- tallos -->
+        <g fill="none" stroke-width="7" style="stroke:var(--stem)">
+          <path class="stem" pathLength="1" style="--i:0" d="M300 560C250 510 185 460 138 412"/>
+          <path class="stem" pathLength="1" style="--i:1" d="M300 560C350 510 415 460 462 414"/>
+          <path class="stem" pathLength="1" style="--i:2" d="M300 560C255 470 150 420 88 340"/>
+          <path class="stem" pathLength="1" style="--i:3" d="M300 560C345 470 450 425 512 345"/>
+          <path class="stem" pathLength="1" style="--i:4" d="M300 560C300 420 300 270 300 140"/>
+          <path class="stem" pathLength="1" style="--i:5" d="M300 560C290 440 210 330 172 215"/>
+          <path class="stem" pathLength="1" style="--i:6" d="M300 560C310 440 390 330 428 215"/>
+          <path class="stem" pathLength="1" style="--i:7" d="M300 560C298 480 250 400 218 330"/>
+          <path class="stem" pathLength="1" style="--i:8" d="M300 560C304 480 350 400 384 328"/>
+          <path class="stem" pathLength="1" style="--i:9" d="M300 560L300 345"/>
+        </g>
+
+        <!-- flores (de atrás hacia delante) -->
+        <g transform="translate(135 405)"><g class="bq" style="--i:0"><g class="hd" style="--dur:60s"><use href="#daisy" transform="translate(-45 -45) scale(.9)" style="--petal:#FFE24D;--petal-2:#F7C300"/></g></g></g>
+        <g transform="translate(465 408)"><g class="bq" style="--i:1"><g class="hd" style="--dur:75s;--dir:reverse"><use href="#mimosa" transform="translate(-45 -45) scale(.9)" style="--petal:#FFEA7A;--petal-2:#F6CB2E"/></g></g></g>
+        <g transform="translate(78 330)"><g class="bq" style="--i:2"><g class="hd" style="--dur:80s"><use href="#mimosa" transform="translate(-55 -55) scale(1.1)" style="--petal:#FFD60A;--petal-2:#F2AE00"/></g></g></g>
+        <g transform="translate(522 335)"><g class="bq" style="--i:3"><g class="hd" style="--dur:55s;--dir:reverse"><use href="#daisy" transform="translate(-57.5 -57.5) scale(1.15)" style="--petal:#FFCC1A;--petal-2:#E89B00"/></g></g></g>
+        <g transform="translate(300 130)"><g class="bq" style="--i:4"><g class="hd" style="--dur:90s"><use href="#sun" transform="translate(-105 -105) scale(2.1)" style="--petal:#FFD60A;--petal-2:#F2AE00"/></g></g></g>
+        <g transform="translate(168 205)"><g class="bq" style="--i:5"><g class="hd" style="--dur:65s;--dir:reverse"><use href="#daisy" transform="translate(-80 -80) scale(1.6)" style="--petal:#FFE24D;--petal-2:#F7C300"/></g></g></g>
+        <g transform="translate(432 205)"><g class="bq" style="--i:6"><g class="hd" style="--dur:70s"><use href="#cup" transform="translate(-80 -80) scale(1.6)" style="--petal:#FFCC1A;--petal-2:#E89B00"/></g></g></g>
+        <g transform="translate(215 320)"><g class="bq" style="--i:7"><g class="hd" style="--dur:85s;--dir:reverse"><use href="#sun" transform="translate(-65 -65) scale(1.3)" style="--petal:#FFC400;--petal-2:#E08E00"/></g></g></g>
+        <g transform="translate(388 318)"><g class="bq" style="--i:8"><g class="hd" style="--dur:60s"><use href="#cup" transform="translate(-65 -65) scale(1.3)" style="--petal:#FFEA7A;--petal-2:#F6CB2E"/></g></g></g>
+        <g transform="translate(300 335)"><g class="bq" style="--i:9"><g class="hd" style="--dur:75s;--dir:reverse"><use href="#daisy" transform="translate(-75 -75) scale(1.5)" style="--petal:#FFD60A;--petal-2:#F2AE00"/></g></g></g>
+
+        <!-- papel de envolver (delante) + cinta -->
+        <g class="paper front">
+          <path d="M95 400Q300 470 505 400L325 710L275 710Z" fill="#FFF3CF" stroke="#17124F" stroke-opacity=".12"/>
+          <path d="M300 435Q402.5 435 505 400L325 710L300 710Z" fill="#FFE7A0"/>
+          <path d="M186 552Q300 585 414 552L408 580Q300 614 192 580Z" fill="#6C5CE7"/>
+        </g>
+
+        <!-- lazo -->
+        <g transform="translate(300 584)">
+          <g class="bow">
+            <path d="M-2 2Q-30 36-38 76L-14 64L0 16Z" fill="#4A3FC0"/>
+            <path d="M2 2Q30 36 38 76L14 64L0 16Z" fill="#4A3FC0"/>
+            <path d="M0-6C-45-49-95-24-75 14C-55 38-10 14 0-6Z" fill="#6C5CE7"/>
+            <path d="M0-6C45-49 95-24 75 14C55 38 10 14 0-6Z" fill="#6C5CE7"/>
+            <circle r="13" fill="#4A3FC0"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Botones justo debajo del ramo -->
+    <div class="actions">
+      <button class="btn" id="openMsg" type="button" aria-haspopup="dialog">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+        Leer mensaje
+      </button>
+      <button class="btn ghost" id="top" type="button">Volver al principio</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Ventana semitransparente con el mensaje ===== -->
+<dialog class="msg" id="mensaje" aria-labelledby="msgTitle">
+  <div class="msg-card">
+    <button class="x" id="closeMsg" type="button" aria-label="Cerrar mensaje">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+
+    <!-- ✏️ ESCRIBE AQUÍ TU TEXTO: cambia el título y los párrafos (puedes añadir o quitar <p>) -->
+    <h3 id="msgTitle">Un mensaje para ti mi amor</h3>
+    <p>Hola mi amor,</p>
+    <p>Queria empezar dandote las gracias, porque aunque alguna vez te lo digo creo que nunca sera suficiente para agradecerte lo feliz que me haces dia a dia, me levantas en mis dias malos, celebras conmigo los dias buenos y siempre estas ahi cuadno uno lo necesita.</p>
+    <p>Todas las flores de esta pagina representan todas las veces que nos hemos recordado lo mucho que nos queremos, las veces que nos hemos pedido perdon por haberla liado en un dia malo y aun asi seguir adelante los dos juntos, todas las veces que hemos llorado porque las cosas no iban como nos gustarian, pero a pesar de todo nos queremos como nunca y eso es lo mas bonito que puede tener uno en esta vida</p>
+    <p>Espero que te haya hecho tanta ilusion ver la pagina web como la ilusion que me ha hecho a mi escribir 1000 lineas de codigo para ti porque no hay cosa mas bonita que hacer aquello que mas amas para la persona que mas amas</p>
+    <p class="sig">Te amo con todo mi ser</p>
+
+  </div>
+</dialog>
+
+<script>
+(() => {
+  'use strict';
+
+  /* ==========================================================
+     TEXTOS DE LA PÁGINA — cámbialos aquí
+     · PHRASES: una frase por pantalla, en orden (habrá tantas
+       pantallas como frases pongas).
+     · FINAL_PHRASE: la frase grande que aparece sobre el ramo.
+     · El texto largo de la ventana está en el <dialog> del HTML.
+     ========================================================== */
+  const PHRASES = [
+    'Feliz 21 de septiembre mi amor',
+    'Espero hacerte muy feliz con esta pagina que hecho para ti',
+    'Para que siempre tengas un lugar en internet donde quede mi amor por ti',
+    'Que mejor que una pagina que nunca muere para representar el amor imperecedero que siento por ti',
+    'Por ser la persona mas especial y mas bonita que uno puede soñar',
+    'Gracias por tanto, y Perdón por tan poco',
+    'Ya casi llegas jejeje'
+  ];
+  const FINAL_PHRASE = 'Estas flores son para ti';
+
+  /* ---------- Utilidades ---------- */
+  const $ = s => document.querySelector(s);
+  const rand = (a, b) => a + Math.random() * (b - a);
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+
+  /* ---------- Flores sueltas ---------- */
+  const PALETTE = [
+    ['#FFD60A', '#F2AE00'],
+    ['#FFE24D', '#F7C300'],
+    ['#FFCC1A', '#E89B00'],
+    ['#FFEA7A', '#F6CB2E'],
+    ['#FFC400', '#E08E00']
+  ];
+  const TYPES = ['daisy', 'daisy', 'daisy', 'cup', 'cup', 'cup', 'sun', 'sun', 'mimosa'];
+
+  function pickSize() {
+    const k = clamp(innerWidth / 1200, .7, 1.1);
+    const r = Math.random();
+    const base = r < .55 ? rand(34, 80) : r < .87 ? rand(90, 160) : rand(180, 290);
+    return Math.round(base * k);
+  }
+  // zona central de las frases: se evita para que se lean bien
+  function inZone(x, y) {
+    const narrow = innerWidth < 700;
+    return x > (narrow ? 4 : 20) && x < (narrow ? 96 : 80) && y > 30 && y < 70;
+  }
+  // en el final, la columna central es para la frase y el ramo
+  function inFinaleZone(x) {
+    const narrow = innerWidth < 700;
+    return x > (narrow ? 12 : 18) && x < (narrow ? 88 : 82);
+  }
+
+  // las flores brotan cuando entran en pantalla
+  const bloomIO = new IntersectionObserver(entries => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      e.target.classList.add('in');
+      bloomIO.unobserve(e.target);
+    }
+  }, { rootMargin: '0px 0px -5% 0px' });
+
+  function fillFlowers(box, zone = inZone, boost = 1) {
+    const count = Math.round(clamp(Math.round(innerWidth / 50), 16, 30) * boost);
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < count; i++) {
+      const size = pickSize();
+      let x, y, tries = 0;
+      do {
+        x = rand(-3, 103);
+        y = rand(-3, 103);
+        tries++;
+      } while (tries < 10 && zone(x, y) && (size > 64 || Math.random() < .85));
+
+      const [c1, c2] = pick(PALETTE);
+      const p = clamp(size / 220 + rand(-.15, .15), .15, 1.3);
+      const f = document.createElement('div');
+      f.className = 'f';
+      f.style.cssText =
+        `--x:${x.toFixed(1)};--y:${y.toFixed(1)};--s:${size};--r:${Math.round(rand(0, 360))};` +
+        `--p:${p.toFixed(2)};--d:${rand(0, .45).toFixed(2)}s;--dur:${Math.round(rand(40, 110))}s;` +
+        `--dir:${Math.random() < .5 ? 'normal' : 'reverse'};--petal:${c1};--petal-2:${c2};z-index:${size}`;
+      f.innerHTML = `<div class="bloom"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#${pick(TYPES)}"/></svg></div>`;
+      frag.appendChild(f);
+      bloomIO.observe(f);
+    }
+    box.appendChild(frag);
+  }
+
+  /* ---------- Texto: cada palabra sube desde su máscara ---------- */
+  function setPhrase(el, text) {
+    el.textContent = '';
+    text.split(/\s+/).filter(Boolean).forEach((word, i) => {
+      const w = document.createElement('span');
+      w.className = 'w';
+      w.style.setProperty('--i', i);
+      const inner = document.createElement('span');
+      inner.textContent = word;
+      w.appendChild(inner);
+      el.append(w, ' ');
+    });
+  }
+
+  /* ---------- Pantallas ---------- */
+  const secIO = new IntersectionObserver(entries => {
+    for (const e of entries) {
+      e.target.classList.toggle('vis', e.isIntersecting);
+      if (e.intersectionRatio >= .35 || e.intersectionRect.height > innerHeight * .4) {
+        e.target.classList.add('in');
+      }
+    }
+  }, { threshold: [0, .35] });
+
+  function makeSection(text, i) {
+    const sec = document.createElement('section');
+    sec.className = 'sec';
+    sec.style.setProperty('--gx', Math.round(rand(10, 90)) + '%');
+    sec.style.setProperty('--gy', Math.round(rand(20, 80)) + '%');
+
+    const box = document.createElement('div');
+    box.className = 'flowers';
+    box.setAttribute('aria-hidden', 'true');
+
+    const inner = document.createElement('div');
+    inner.className = 'inner';
+    const h = document.createElement(i === 0 ? 'h1' : 'h2');
+    h.className = 'phrase';
+    setPhrase(h, text);
+    inner.appendChild(h);
+
+    sec.append(box, inner);
+    if (i === 0) {
+      const cue = document.createElement('div');
+      cue.className = 'cue';
+      cue.innerHTML = '<span>Desliza</span><i class="arrow"></i>';
+      sec.appendChild(cue);
+    }
+    fillFlowers(box);
+    secIO.observe(sec);
+    return sec;
+  }
+
+  const stage = $('#stage');
+  PHRASES.forEach((text, i) => stage.appendChild(makeSection(text, i)));
+
+  /* ---------- Final: ramo ---------- */
+  const finale = $('#finale');
+  setPhrase($('#finalPhrase'), FINAL_PHRASE);
+  fillFlowers(finale.querySelector('.flowers'), inFinaleZone, 1.4);
+  secIO.observe(finale);
+
+  const bouquet = $('#bouquet');
+  new IntersectionObserver((entries, obs) => {
+    if (!entries[0].isIntersecting) return;
+    bouquet.classList.add('in');
+    obs.disconnect();
+  }, { threshold: .35 }).observe(bouquet);
+
+  $('#top').addEventListener('click', () => {
+    const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    scrollTo({ top: 0, behavior: calm ? 'auto' : 'smooth' });
+  });
+
+  /* ---------- Ventana del mensaje ---------- */
+  const dlg = $('#mensaje');
+  $('#openMsg').addEventListener('click', () => dlg.showModal());
+  $('#closeMsg').addEventListener('click', () => dlg.close());
+  // clic fuera de la tarjeta = cerrar
+  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+})();
+</script>
+</body>
+</html>
